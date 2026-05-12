@@ -1,0 +1,77 @@
+--- a/gsm_runs/runscr/mpisub.in
++++ b/gsm_runs/runscr/mpisub.in
+@@ -13,43 +13,8 @@
+ 	eval parm$total=$parm
+ done
+ #
+-testnodes=no
+ here_dir=`pwd`
+ #
+-cnt=1
+-TOTAL_NPES=0
+-while [ $cnt -le $total ] ; do
+-	prog_npes=\$npes${cnt}
+-	prog_npes=`eval echo $prog_npes`
+-	TOTAL_NPES=`expr $TOTAL_NPES + $prog_npes`
+-	cnt=`expr $cnt + 1`
+-done
+-x=`expr $TOTAL_NPES + @NCPU_PER_NODE@ \- 1`
+-n=`expr $x \/ @NCPU_PER_NODE@ + 1`
+-#
+-sed -n "1,${TOTAL_NPES}p" @NODE_LIST@ >$here_dir/hostfile
+-#
+-which mpdboot 2>/dev/null
+-cc=$?
+-if [ $cc -eq 0 ] ; then
+-	sed 's/^/ssh /g' $here_dir/hostfile | sed 's/:.*//g' | sed 's/$/ "mpdallexit"/g' | sort -u >mpdexit.sh
+-	chmod a+x mpdexit.sh
+-	./mpdexit.sh
+-	mpdallexit
+-fi
+-if [ "$testnodes" = yes ] ; then
+-	sed 's/^/ssh /g' $here_dir/hostfile | sed 's/$/ "date"/g' | sort -u >force_mount.sh
+-	chmod a+x force_mount.sh
+-	./force_mount.sh
+-fi
+-if [ $cc -eq 0 ] ; then
+-if [ @NICKNAME@ = imtf4 ] ; then
+-	mpdboot
+-else
+-	mpdboot -n $n -f $here_dir/hostfile
+-fi
+-fi
+-#
+ args=
+ outs=out
+ cnt=0
+@@ -65,28 +30,18 @@
+ 	if [ $cnt -gt 1 ] ; then
+ 		colon=':'
+ 	fi
+-if [ @NICKNAME@ = naam ] ; then
+-	args="$args $colon $prog $parm"
+-else
+ 	args="$args $colon @NPES_ARG@ $npes $prog $parm"
+-fi
+ 	#
+ 	# remove .* from $prog for beautification
+ 	#
+-	nprog=`echo $prog | sed 's/\..*//g'` 
++	nprog=`echo $prog | sed 's/\..*//g'`
+ 	outs="$outs-$nprog"
+ done
+ #
+-heredir=`pwd`
+-#
+-# remove .x from outs
+-#
+ echo $args
+ @MPIEXEC@  @MPIEXEC_ARGS@ $args 1>$here_dir/$outs.ft$hx 2>&1
+ cc=$?
+-#
+-./mpdexit.sh
+-mpdallexit
+ if [ $cc -eq 0 ] ; then
+ 	exit 0
+ fi
++exit $cc

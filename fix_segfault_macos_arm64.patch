@@ -1,0 +1,35 @@
+--- a/libs/lib/w3lib_gfort/ngetgir.f
++++ b/libs/lib/w3lib_gfort/ngetgir.f
+@@ -46,7 +46,7 @@
+ c
+ c  search for first grib message
+ c
+-      iseek=0
++      iseek=1
+       call nskgb(bbuf,isize,iseek,msk1,lskip,lgrib)
+       do m=1,mnum
+         if(lgrib.gt.0) then
+--- a/libs/lib/w3lib_gfort/nrdgb.f
++++ b/libs/lib/w3lib_gfort/nrdgb.f
+@@ -18,17 +18,20 @@
+ c     character grib(lgrib)*1
+       character bbuf(isize)
+ c     character grib(llgrib)*1
+-      character grib(isize)*1
++      character, allocatable :: grib(:)
+       integer kpds(25),kgds(22),kptr(16)
+       logical*1 lbms(*)
+       real data(*)
+       ndata=0
++      allocate(grib(isize))
+       call nbaread(bbuf,isize,lskip,lgrib,lread,grib)
+       if(lread.lt.lgrib) then
+         write(luptr,*) ' error in rdgb.  lread.lt.lgrib'
++        deallocate(grib)
+         call abort
+       endif
+       call w3fi63(grib,kpds,kgds,lbms,data,kptr,iret)
++      deallocate(grib)
+       if(iret.ne.0) then
+         write(luptr,*) ' error in rdgb.  iret.ne.0 from w3fi63'
+         write(luptr,*) ' iret=',iret
