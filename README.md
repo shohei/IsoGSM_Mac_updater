@@ -29,7 +29,7 @@ gribmap –i flx.ctl
 ### Step 4. Visualization
 
 ```
-/Application/OpenGrADS/opengrads 
+/Applications/OpenGrADS/opengrads 
 > open flx.ctl
 > d pwatclm
 > set t 1 21
